@@ -1,0 +1,27 @@
+@import "./bookingmodal.scss";
+
+// Custom Dark Theme for Modals
+.modal-content {
+  background-color: #0d1b1e !important; 
+  
+  .form-control {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    &:focus {
+      background-color: #1a2a2d;
+      border-color: $accent-green;
+      box-shadow: none;
+      color: white;
+    }
+  }
+}
+
+.fixer-card {
+  background: #14282c; // Matches screenshot background
+  color: white;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    border: 1px solid $accent-green;
+  }
+}
