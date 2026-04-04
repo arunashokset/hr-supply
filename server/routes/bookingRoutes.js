@@ -102,4 +102,11 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
+const { protect } = require('../middleware/auth');
+
+// Example: Only the Admin can delete a booking
+router.delete('/:id', protect, async (req, res) => {
+    // Delete logic here...
+});
+
 module.exports = router;

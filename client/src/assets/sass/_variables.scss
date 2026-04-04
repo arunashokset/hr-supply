@@ -1,6 +1,27 @@
-$primary-black: #000000;
-$accent-green: #00ff88;
-$text-white: #ffffff;     
-$dark-card: #111111;
-$dark-grey: #111111;
-$border-color: rgba(255, 255, 255, 0.1);
+$logo-green: #2ecc71;  // The vibrant green from the 'Z'
+$logo-blue: #1e3799;   // The deep blue in the 'Z'
+$logo-gold: #f39c12;   // The orange/yellow highlight
+$text-white: #ffffff;
+$text-gray: #a0a0a0;
+// --- 🎨 1. BRAND PALETTE (From Zupply Logo) ---
+$logo-green:  #2ecc71;  // The vibrant emerald in the 'Z'
+$logo-blue:   #1e3799;  // The deep navy blue inside the 'Z'
+$logo-gold:   #f39c12;  // The amber/gold highlight in the subtext
+$logo-white:  #ffffff;
+
+// --- 🌑 2. THEME COLORS (Pure Black Aesthetic) ---
+$primary-black: #000000; // Background - OLED Black
+$dark-card:     #0a0a0a; // Cards - Slightly lighter than background
+$dark-grey:     #121212; // Input fields / Hover states
+$border-color:  rgba(255, 255, 255, 0.08); // Subtle borders
+$dark-border: #222222;
+
+// --- 🟢 3. FUNCTIONAL COLORS (Mapped to Brand) ---
+$accent-green: $logo-green; 
+$accent-gold:  $logo-gold;
+$text-white:   #ffffff;
+$text-muted:   #a0a0a0;
+
+// --- ✨ 4. GRADIENTS ---
+// This mimics the 3D flow of your logo's 'Z'
+$brand-gradient: linear-gradient(135deg, $logo-green 0%, $logo-blue 100%);

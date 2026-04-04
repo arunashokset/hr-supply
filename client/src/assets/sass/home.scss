@@ -4,6 +4,7 @@
 #root {
   margin: 0;
   padding: 0;
+  background-color: v.$primary-black;
 }
 
 // 2. The Banner Container
@@ -16,6 +17,7 @@
   padding: 0 !important;
   overflow: hidden;
   position: relative;
+  background-color: v.$primary-black;
 
   .swiper {
     height: 90% !important;
@@ -48,18 +50,19 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: white;
+    color: v.$text-white;
 
     h1 {
-      color: v.$accent-green; // Added v.
+      color: v.$text-white;
+      span { color: v.$accent-green; } // Highlight word in Zupply Green
     }
   }
 }
 
-
+// 3. Option & Profile Menu
 .option-card {
   background-color: v.$dark-card;
-  border: 1px solid rgba(v.$text-white, 0.1);
+  border: 1px solid v.$border-color;
 }
 
 .profile-menu {
@@ -75,31 +78,31 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    border: 1px solid rgba(v.$accent-green, 0.3); // Added v.
+    border: 1px solid rgba(v.$accent-green, 0.3);
     transition: 0.3s;
 
     &:hover {
-      background: rgba(v.$accent-green, 0.1); // Added v.
-      border-color: v.$accent-green; // Added v.
+      background: rgba(v.$accent-green, 0.1);
+      border-color: v.$accent-green;
     }
   }
 
   .dropdown-menu {
-    background: rgba(15, 15, 15, 0.9);
+    background: rgba(10, 10, 10, 0.95);
     backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid v.$border-color;
     border-radius: 12px;
     padding: 10px;
     margin-top: 15px;
 
     .dropdown-item {
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(v.$text-white, 0.8);
       border-radius: 6px;
       padding: 8px 15px;
       font-size: 0.95rem;
 
       &:hover {
-        background: v.$accent-green; // Added v.
+        background: v.$accent-green;
         color: v.$primary-black;
         transform: translateX(5px);
         transition: 0.2s ease-out;
@@ -107,93 +110,95 @@
     }
 
     .dropdown-divider {
-      opacity: 0.1;
+      border-color: v.$border-color;
     }
   }
 }
 
-/* Cards */
+/* Cards & Hover States */
 .card {
+  background-color: v.$dark-card !important;
+  border: 1px solid v.$border-color !important;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   cursor: pointer;
-  border: 1px solid #333;
-  transition: transform 0.4s ease, background-color 0.3s ease;
-}
 
-.card:hover {
-  transform: translateY(-10px); /* Move up smoothly */
-  background-color: #198754 !important; /* Bootstrap Success Green */
-  border-color: #fff;
-  
-  /* Invert text colors on hover */
-  h4, h5, p, i, .small {
-    color: #000 !important;
-  }
-  
-  .btn-outline-success {
-    background-color: #000;
-    color: #fff;
-    border-color: #000;
-  }
-  
-  .btn-success {
-    background-color: #000;
-    border-color: #000;
+  &:hover {
+    transform: translateY(-10px);
+    background: v.$brand-gradient !important; // Dynamic Green -> Blue flow
+    border-color: v.$text-white !important;
+    
+    h4, h5, p, i, .small {
+      color: v.$text-white !important;
+    }
+    
+    .btn-outline-success {
+      background-color: v.$primary-black;
+      color: v.$text-white;
+      border-color: v.$primary-black;
+    }
+    
+    .btn-success {
+      background-color: v.$primary-black;
+      border-color: v.$primary-black;
+    }
   }
 }
 
 .value-card {
-  border: 1px solid #2d2d2d;
+  background-color: v.$dark-card !important;
+  border: 1px solid v.$border-color !important;
   border-radius: 4px;
   transition: all 0.3s ease-in-out;
-  margin-top: 20px; // Space for the floating number
+  margin-top: 20px;
 
   .value-number {
     width: 40px;
     height: 40px;
-    background-color: #e9967a; // The salmon/peach color from your screenshot
-    color: #000;
+    background-color: v.$accent-gold; // Uses Logo Gold highlight
+    color: v.$primary-black;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     font-size: 1.1rem;
-    border: 4px solid #000; // Matches background to look "cut out"
+    border: 4px solid v.$primary-black;
   }
 
   .accent-line {
     height: 3px;
     width: 100%;
-    background-color: #e9967a;
+    background-color: v.$accent-green;
     position: absolute;
     top: 0;
     left: 0;
     opacity: 0.6;
   }
 
-  // Smooth Hover Effect
   &:hover {
     transform: translateY(-8px);
-    background-color: #198754 !important; // Green invert
-    border-color: #fff;
+    background: v.$brand-gradient !important;
+    border-color: v.$text-white !important;
 
     .value-number {
-      background-color: #fff;
+      background-color: v.$text-white;
+      color: v.$logo-blue; // Using the blue from logo on hover
     }
 
     .accent-line {
-      background-color: #fff;
+      background-color: v.$text-white;
     }
 
     h4, p {
-      color: #000 !important;
+      color: v.$text-white !important;
     }
   }
 }
 
 /* Testimonials */
 .testimonial-card {
+  background-color: v.$dark-card !important;
+  border: 1px solid v.$border-color !important;
   transition: all 0.4s ease;
   cursor: grab;
   
@@ -203,15 +208,15 @@
 
   &:hover {
     transform: translateY(-10px);
-    background-color: #198754 !important; // Green invert
-    border-color: #fff;
+    background: v.$brand-gradient !important;
+    border-color: v.$text-white !important;
 
     h5, p, i, .text-light {
-      color: #000 !important;
+      color: v.$text-white !important;
     }
     
     .text-success {
-        color: #fff !important; // Keep designation readable
+        color: v.$accent-gold !important; // Gold subtext for high visibility
         font-weight: bold;
     }
   }
@@ -219,5 +224,5 @@
 
 // Swiper Pagination Color
 .swiper-pagination-bullet-active {
-  background: #198754 !important;
+  background: v.$accent-green !important;
 }

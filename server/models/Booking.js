@@ -19,7 +19,7 @@ const BookingSchema = new mongoose.Schema({
   requirements: { type: String },
   status: {
     type: String,
-    enum: ['requested','pending', 'confirmed', 'completed', 'cancelled'],
+    enum: ['requested','verified', 'confirmed', 'completed', 'cancelled'],
     default: 'requested'
   }
   // Temporarily commented out fields that aren't in your form yet

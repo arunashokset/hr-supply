@@ -32,16 +32,12 @@ const UserSchema = new mongoose.Schema({
     default: 'Nidda, Germany', // Updated to your current location
     required: true  
   },
+  photo: { type: String, default: "" },
   // Only relevant if role is 'fixer'
-  experience: { 
-    type: String, 
-    default: '0 years' 
-  },
+  experience: { type: String, default: '0 years'  },
+  services: [String],
   // Added to track if a fixer is currently available for work
-  isAvailable: {
-    type: Boolean,
-    default: true
-  }
+  isAvailable: { type: Boolean, default: true  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

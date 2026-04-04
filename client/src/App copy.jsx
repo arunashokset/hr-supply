@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import axios from 'axios';
+import AdminDashboard from './pages/AdminDashboard';
+import FixerDashboard from './pages/FixerDashboard';
+import UserInterface from './pages/UserHome.jsx';
 
 // Assets & Styles
 import './assets/sass/home.scss';
@@ -14,10 +18,15 @@ import video3 from './assets/videos/carer2.mp4';
 import video4 from './assets/videos/fixer2.mp4';
 
 // Components & Pages
-import Navbar from './components/Navbar';
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminLogin from './pages/AdminLogin';
+import Navbar from './components/Navbar';
+import Fixers from './components/Fixers';
+import Services from './components/Services';
 import AuthModal from "./components/AuthModal.jsx";
+import CoreValues from './components/CoreValues';
+import Testimonials from './components/Testimonials';
+
 
 // --- SUB-COMPONENTS ---
 
@@ -37,49 +46,14 @@ const BookingFlow = ({ show, selectedFixer, onHide }) => {
 
 // --- MAIN HOME PAGE COMPONENT ---
 
-const Home = ({ openAuth }) => {
+const Home = ({ openAuth, userRole }) => {
   const [showBooking, setShowBooking] = useState(false);
   const [selectedFixer, setSelectedFixer] = useState(null);
 
-  const fixers = [
-    { name: "Arun A.", exp: "5 Years", loc: "Nidda", rate: "25€" },
-    { name: "Blessy D.", exp: "3 Years", loc: "Gelnhausen", rate: "30€" },
-    { name: "Kiran K.", exp: "8 Years", loc: "Frankfurt", rate: "22€" },
-    { name: "Maria S.", exp: "4 Years", loc: "Hanau", rate: "28€" }
-  ];
 
-
-  function App() {
-  const [user, setUser] = useState(null);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [showFixerModal, setShowFixerModal] = useState(false);
-
-  // Load user from localStorage on start
-  useEffect(() => {
-    const role = localStorage.getItem('role');
-    const token = localStorage.getItem('token');
-    if (role && token) {
-      setUser({ role, token });
-    }
-  }, []);
-
-  const handleLoginSuccess = (userData) => {
-    setUser(userData);
-    setIsAuthOpen(false);
-
-    // REDIRECTION LOGIC
-    if (userData.role === 'admin') {
-      window.location.href = "/admin";
-    } else if (userData.role === 'fixer') {
-      setShowFixerModal(true); // Show the "additional info" modal for fixers
-    }
-    // Users just stay on the home page
-  };
-
-  const handleLogout = () => {
-    localStorage.clear();
-    setUser(null);
-    window.location.href = "/";
+  const handleBookClick = (fixer) => {
+    setSelectedFixer(fixer);
+    setShowBooking(true);
   };
 
   return (
@@ -113,35 +87,16 @@ const Home = ({ openAuth }) => {
       </section>
 
       {/* 4. Fixers Section */}
-      <section id="fixers" className="py-5 bg-dark">
-        <div className="container">
-          <h2 className="text-center mb-5 text-success">Top Rated Fixers</h2>
-          <div className="row g-4">
-            {fixers.map((fixer, i) => (
-              <div className="col-md-3" key={i}>
-                <div className="card bg-black border-secondary p-3 text-center text-white">
-                  <h5>{fixer.name}</h5>
-                  <p className="small text-secondary">{fixer.loc} | {fixer.rate}/hr</p>
-                  <button onClick={() => { setSelectedFixer(fixer); setShowBooking(true); }} className="btn btn-outline-success btn-sm">Book Now</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Fixers onBookClick={handleBookClick} />
 
-      <section id="services" className="py-5 container text-center">
-         <h2 className="fw-bold mb-4 text-success">Our Services</h2>
-         <p className="text-secondary">Plumbing, Electrical, and Professional Cleaning.</p>
-      </section>
+       {/* 5. Services Section */}
+      <Services/>
+
+      {/* Our Core Values */}
+      <CoreValues />
 
        {/* 5. TESTIMONIALS  */}
-       <section className="py-5 bg-black text-center">
-         <div className="container">
-           <h2 className="fw-bold mb-4 text-success">Client Reviews</h2>
-           <p className="fst-italic text-secondary">"Fast and reliable service in Nidda!" - Happy Customer</p>
-         </div>
-      </section>
+       <Testimonials />
 
        {/* 6. CTA SECTION  */}
        <section className="py-5 bg-success text-center text-white">
@@ -192,6 +147,20 @@ function App() {
     window.location.href = "/";
   };
 
+
+  if (!user) {
+    return <Login onLoginSuccess={(userData) => setUser(userData)} />;
+  }
+
+  // Role-based Routing
+  if (user.role === 'admin') {
+    return <AdminDashboard token={user.token} />;
+  } else if (user.role === 'fixer') {
+    return <FixerDashboard token={user.token} />;
+  } else {
+    return <UserInterface />; // The current booking app
+  }
+
   return (
     <Router>
       <Navbar 
@@ -201,7 +170,7 @@ function App() {
       />
 
       <Routes>
-        <Route path="/" element={<Home openAuth={() => setIsAuthOpen(true)} />} />
+        <Route path="/" element={<Home onOpenAuth={() => setIsAuthOpen(true)} />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route 
           path="/admin" 
@@ -209,12 +178,17 @@ function App() {
         />
       </Routes>
 
+      {/* FIXER ADDITIONAL INFO MODAL */}
       {showFixerModal && (
         <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.9)', zIndex: 10000, position: 'fixed', top:0, left:0, width:'100%', height:'100%' }}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content bg-dark text-white p-5 border-success">
               <h2 className="text-success">Welcome, Fixer!</h2>
-              <p>Please complete your profile to start receiving bookings.</p>
+              <p>Please complete your profile information to start receiving bookings.</p>
+              <div className="mb-3">
+                <label className="form-label">Years of Experience</label>
+                <input type="number" className="form-control bg-black text-white border-secondary" />
+              </div>
               <button className="btn btn-success w-100" onClick={() => setShowFixerModal(false)}>Save Details</button>
             </div>
           </div>
