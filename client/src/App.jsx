@@ -9,18 +9,18 @@ function App() {
   const [auth, setAuth] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem('hr_user');
-    if (savedUser) {
-      try {
-        setAuth(JSON.parse(savedUser));
-      } catch (e) {
-        console.error("Error parsing saved user", e);
-        localStorage.removeItem('hr_user');
-      }
+useEffect(() => {
+  const savedUser = localStorage.getItem('hr_user');
+  if (savedUser) {
+    try {
+      setAuth(JSON.parse(savedUser));
+    } catch (e) {
+      console.error("Error parsing saved user", e);
+      localStorage.removeItem('hr_user');
     }
-    setLoading(false);
-  }, []);
+  }
+  setLoading(false);
+}, []);
 
   const handleLogin = (data) => {
     setAuth(data);

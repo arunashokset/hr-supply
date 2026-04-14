@@ -1,22 +1,20 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./config/db');
 
-// 1. Initialize Dotenv and Connect to MongoDB
 dotenv.config();
 connectDB();
 
-// 2. Initialize the Express App
 const app = express(); 
 
 // 3. Middleware
-app.use(cors());
-
-/** * ✅ CORRECTED HERE: 
- * Increased limit to 10mb to allow Base64 Photo strings.
- * Without this, you will get a "413 Payload Too Large" error.
- */
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
@@ -27,6 +25,8 @@ const fixerRoutes = require('./routes/fixerRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const bannerRoutes = require('./routes/bannerRoutes');
+const sectionRoutes = require('./routes/sectionRoutes');
 
 // 5. Register/Mount the Routes
 app.use('/api/auth', authRoutes); 
@@ -35,10 +35,17 @@ app.use('/api/fixers', fixerRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/banners', bannerRoutes);
+app.use('/api/sections', sectionRoutes);
+
+// app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/uploads', express.static('public/uploads'));
+app.use('/media', express.static(path.join(__dirname, 'public/media')));
+app.use('/videos', express.static(path.join(__dirname, 'public/videos')));
 
 // 6. Base Route for Testing
 app.get('/', (req, res) => {
-  res.send('🚀 HR-SUPPLY API is running successfully!');
+  res.send('🚀 ZUPPLY API is running successfully!');
 });
 
 // 7. Start Server

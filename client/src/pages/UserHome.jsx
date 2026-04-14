@@ -1,25 +1,33 @@
-import React, { useState } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import React, { useState, useEffect } from 'react'; // Added useEffect
+import axios from 'axios'; // Ensure axios is installed
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 
 import Navbar from '../components/Navbar';
 import Fixers from '../components/Fixers';
 import Services from '../components/Services';
 import CoreValues from '../components/CoreValues';
 import Testimonials from '../components/Testimonials';
+import DynamicBanner from '../components/DynamicBanner';
 
-import video1 from "../assets/videos/video1.mp4";
-import video2 from "../assets/videos/video2.mp4";
-import video3 from "../assets/videos/video3.mp4";
-import video4 from "../assets/videos/video4.mp4";
-
-// ADDED PROPS HERE: { user, onLogout }
-const UserHome = ({ user, onLogout }) => { 
+const UserHome = ({ user, onLogout }) => {
   const [selectedFixer, setSelectedFixer] = useState(null);
   const [showBooking, setShowBooking] = useState(false);
+  const [dynamicSections, setDynamicSections] = useState([]); // State for your API data
+
+  // 🟢 1. FETCH DYNAMIC SECTIONS ON LOAD
+  useEffect(() => {
+    const fetchSections = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/sections');
+        // Sort by order number (ascending)
+        const sorted = res.data.sort((a, b) => a.order - b.order);
+        setDynamicSections(sorted);
+      } catch (err) {
+        console.error("Error loading dynamic sections:", err);
+      }
+    };
+    fetchSections();
+  }, []);
 
   const scrollToServices = () => {
     const section = document.getElementById('services');
@@ -35,36 +43,63 @@ const UserHome = ({ user, onLogout }) => {
 
   return (
     <div className="bg-black min-h-screen text-white">
-      {/* Passing the props to Navbar */}
       <Navbar user={user} onLogout={onLogout} />
 
-      <header id="home" className="banner-swiper" style={{ height: '80vh' }}>
-        <Swiper 
-          modules={[Navigation, Pagination, Autoplay]} 
-          slidesPerView={1} 
-          navigation 
-          pagination={{ clickable: true }} 
-          autoplay={{ delay: 8000 }} 
-          loop 
-          style={{ height: '100%' }}
-        >
-          {[video1, video2, video3, video4].map((vid, i) => (
-            <SwiperSlide key={i}>
-              <div className="position-relative w-100 h-100">
-                <video autoPlay muted loop playsInline className="position-absolute w-100 h-100 start-0 top-0" style={{ objectFit: 'cover', opacity: '0.4' }}>
-                  <source src={vid} type="video/mp4" />
-                </video>
-                <div className="banner-content d-flex flex-column justify-content-center align-items-center h-100 text-center position-relative">
-                  <h1 className="display-1 fw-bold text-success">HR SUPPLY</h1>
-                  <p className="lead fs-4">Expert Technicians & Medical Staff at Your Doorstep.</p>
-                  <button onClick={scrollToServices} className="btn btn-success btn-lg mt-4 px-5">Hire Now</button>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </header>
+      <div>
+        <DynamicBanner scrollToServices={scrollToServices} />
+      </div>
 
+      {/* 🟢 2. RENDER DYNAMIC SECTIONS HERE */}
+      <div className="dynamic-content">
+        {dynamicSections.map((section) => (
+          <section
+            key={section._id}
+            className="py-5 container"
+            style={{
+              backgroundColor: section.layoutType === 'standard' ? 'transparent' : '#111',
+              borderBottom: '1px solid #222'
+            }}
+          >
+            <div className={`row align-items-center ${section.imagePosition === 'right' ? 'flex-row-reverse' : ''}`}>
+
+              {/* Media Column (If exists) */}
+              {section.mediaType !== 'none' && (
+                <div className="col-lg-6 mb-4 mb-lg-0">
+                  {section.mediaType === 'image' ? (
+                    <img
+                      src={`http://localhost:5000${section.mediaPath}`}
+                      alt={section.title}
+                      className="img-fluid rounded-4 shadow"
+                    />
+                  ) : (
+                    <video
+                      src={`http://localhost:5000${section.mediaPath}`}
+                      controls
+                      className="img-fluid rounded-4 shadow"
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* Text Column */}
+              <div className={section.mediaType === 'none' ? 'col-12 text-center' : 'col-lg-6'}>
+                <h6 className="text-success text-uppercase fw-bold">{section.subtitle}</h6>
+                <h2 className="display-5 fw-bold mb-3">{section.title}</h2>
+                <p className="lead text-secondary" style={{ whiteSpace: 'pre-line' }}>
+                  {section.content}
+                </p>
+                {section.showButton && (
+                  <button className="btn btn-outline-success btn-lg mt-3 px-4">
+                    Learn More
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+        ))}
+      </div>
+
+      {/* 🟢 3. EXISTING SECTIONS REMAIN UNTOUCHED */}
       <div className="container mx-auto p-4">
         <section id="about" className="py-5 container text-center">
           <h2 className="fw-bold mb-4 text-success">About Our Agency</h2>

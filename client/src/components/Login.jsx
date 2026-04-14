@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Logo from '../assets/images/logo.webp';
 
 const Login = ({ onLogin }) => {
   const [isRegister, setIsRegister] = useState(false);
@@ -57,8 +58,14 @@ const Login = ({ onLogin }) => {
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#fff', padding: '20px' }}>
       <form onSubmit={handleSubmit} style={{ width: '350px', padding: '20px', border: '1px solid #333', borderRadius: '10px', backgroundColor: '#000' }}>
-        <h2 style={{ color: '#198754', textAlign: 'center' }}>HR-SUPPLY</h2>
-        
+        {/* <h2 style={{ color: '#198754', textAlign: 'center' }}>HR-SUPPLY</h2> */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+  <img 
+    src={Logo}
+    alt="HR-SUPPLY Logo" 
+    style={{ maxWidth: '180px', height: 'auto' }} 
+  />
+</div>
         {/* Basic Fields */}
         {isRegister && (
           <>

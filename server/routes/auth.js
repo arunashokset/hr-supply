@@ -2,50 +2,66 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Fixer = require('../models/Fixer');
+const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // --- LOGIN ROUTE ---
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, username, password } = req.body;
+    const identifier = email || username;
 
-    // 1. Check BOTH collections for the email
-    let user = await User.findOne({ email });
-    let isFixer = false;
-
-    if (!user) {
-      user = await Fixer.findOne({ email });
-      if (user) isFixer = true;
+    if (!identifier || !password) {
+      return res.status(400).json({ message: "Username/Email and Password are required" });
     }
 
-    // 2. If still no user found
-    if (!user) {
-      return res.status(401).json({ message: "Account not found in HR-SUPPLY" });
+    // 1. Unified Search: Check Admin collection first
+    let account = await Admin.findOne({ 
+      $or: [{ email: identifier }, { username: identifier }] 
+    });
+
+    if (!account) {
+      account = await User.findOne({ email: identifier });
     }
 
-    // 3. Check Password
-    const isMatch = await bcrypt.compare(password, user.password);
+    if (!account) {
+      account = await Fixer.findOne({ email: identifier });
+    }
+
+    // 2. Validate existence
+    if (!account) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // 3. Verify Password
+    const isMatch = await bcrypt.compare(password, account.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid password" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // 4. Generate Token (Include Role)
+    // 4. Generate JWT
     const token = jwt.sign(
-      { id: user._id, role: user.role }, 
+      { id: account._id, role: account.role }, 
       process.env.JWT_SECRET, 
       { expiresIn: '1d' }
     );
     
+    // 5. Success Response
+    // We send the 'role' so the frontend can redirect to /admin-dashboard or /userhome
     res.json({ 
       token, 
-      role: user.role, // "admin", "fixer", or "user"
-      name: user.name 
+      role: account.role, 
+      user: {
+        id: account._id,
+        name: account.name || account.username,
+        email: account.email
+      }
     });
 
   } catch (err) {
     console.error("Login Error:", err);
-    res.status(500).json({ message: "Server error during login" });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -54,42 +70,39 @@ router.post('/register', async (req, res) => {
   try {
     const { role, email, password } = req.body;
 
-    // 1. Check if email exists in either collection to prevent duplicates
-    const userExists = await User.findOne({ email });
-    const fixerExists = await Fixer.findOne({ email });
+    // 1. Global Email Check
+    const exists = await Promise.all([
+      Admin.findOne({ email }),
+      User.findOne({ email }),
+      Fixer.findOne({ email })
+    ]);
 
-    if (userExists || fixerExists) {
-      return res.status(400).json({ message: "Email already registered" });
+    if (exists.some(acc => acc !== null)) {
+      return res.status(400).json({ message: "Email is already in use" });
     }
 
-    // 2. Hash Password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // 3. Save to correct collection based on role
+    // 2. Save User - Password hashing is handled by Model hooks
+    let newUser;
     if (role === 'fixer') {
-      const newFixer = new Fixer({ 
+      newUser = new Fixer({ 
         ...req.body, 
-        password: hashedPassword,
-        // Ensure numbers are stored as numbers, not strings
-        experience: Number(req.body.experience),
-        rate: Number(req.body.rate),
-        availableHours: Number(req.body.availableHours)
+        experience: Number(req.body.experience) || 0,
+        rate: Number(req.body.rate) || 0,
+        availableHours: Number(req.body.availableHours) || 0
       });
-      await newFixer.save();
+    } else if (role === 'admin') {
+      // Allow admin registration only if your app needs it; usually admins are seeded.
+      newUser = new Admin({ ...req.body });
     } else {
-      const newUser = new User({ 
-        ...req.body, 
-        password: hashedPassword,
-        role: 'user' // Force role to user for security
-      });
-      await newUser.save();
+      newUser = new User({ ...req.body, role: 'user' });
     }
 
-    res.status(201).json({ message: "Registered successfully" });
+    await newUser.save();
+    res.status(201).json({ message: "Account created successfully" });
 
   } catch (err) {
     console.error("Registration Error:", err);
-    res.status(500).json({ message: "Server error: " + err.message });
+    res.status(500).json({ message: "Registration failed: " + err.message });
   }
 });
 
